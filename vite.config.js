@@ -60,6 +60,7 @@ export default defineConfig(({ command }) => {
   const environment = command === 'serve' ? 'dev' : 'stable';
 
   return {
+    base: './', // 👈 Fix white screen on Vercel
     plugins: [
       react(),
       vitePluginBundleObfuscator(obf),
@@ -130,43 +131,3 @@ export default defineConfig(({ command }) => {
           main: resolve(__dirname, 'index.html'),
           loader: resolve(__dirname, 'src/static/loader.html'),
         },
-        output: {
-          entryFileNames: '[hash].js',
-          chunkFileNames: (chunk) =>
-            chunk.name === 'vendor-modules' ? 'chunks/vendor-modules.[hash].js' : 'chunks/[hash].js',
-          assetFileNames: 'assets/[hash].[ext]',
-          manualChunks: (id) => (id.includes('node_modules') ? 'vendor-modules' : undefined),
-        },
-        treeshake: {
-          moduleSideEffects: 'no-external'
-        }
-      },
-      minify: 'esbuild',
-      sourcemap: false
-    },
-    css: {
-      modules: {
-        generateScopedName: () =>
-          String.fromCharCode(97 + Math.floor(Math.random() * 17)) +
-          Math.random().toString(36).substring(2, 8),
-      },
-    },
-    server: {
-      proxy: {
-        '/assets/img': {
-          target: 'https://dogeub-assets.pages.dev',
-          changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/assets\/img/, '/img'),
-        },
-        '/assets-fb': {
-          target: 'https://dogeub-assets.ftp.sh',
-          changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/assets-fb/, ''),
-        },
-      },
-    },
-    define: {
-      __ENVIRONMENT__: JSON.stringify(environment)
-    }
-  };
-});
